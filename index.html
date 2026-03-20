@@ -1,0 +1,2684 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Галерея известных художников</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&display=swap');
+
+        :root {
+            --main-bg: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            --card-bg: rgba(20, 25, 50, 0.7);
+            --text-color: white;
+            --accent-color: #a0d1ff;
+            --navbar-bg: rgba(10, 15, 40, 0.6);
+            --tag-bg: rgba(100, 150, 255, 0.3);
+            --modal-bg: rgba(10, 15, 40, 0.95);
+            --logo-bg-image: url('fon.jpg');
+
+        }
+
+        .light-theme {
+            --main-bg: linear-gradient(135deg, #f5f7fa, #e4e8f0, #c3cfe2);
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --text-color: #333;
+            --accent-color: #4a6cf7;
+            --navbar-bg: rgba(255, 255, 255, 0.9);
+            --tag-bg: rgba(74, 108, 247, 0.15);
+            --modal-bg: rgba(255, 255, 255, 0.98);
+        }
+        
+.light-theme #search-input {
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    border: 1px solid rgba(100, 150, 255, 0.3);
+}
+
+.light-theme #search-input::placeholder {
+    color: #777;
+}
+
+.light-theme #search-button {
+    background: rgba(74, 108, 247, 0.2);
+    color: #333;
+}
+
+.light-theme .autocomplete-items {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(100, 150, 255, 0.3);
+}
+
+.light-theme .autocomplete-item {
+    color: #333;
+}
+
+.light-theme .autocomplete-item:hover {
+    background: rgba(74, 108, 247, 0.15);
+}
+
+.light-theme .filter-btn {
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    border: 1px solid rgba(100, 150, 255, 0.3);
+}
+
+.light-theme .filter-btn:hover {
+    background: rgba(220, 220, 255, 0.8);
+}
+
+.light-theme .filter-btn.active {
+    background: rgba(74, 108, 247, 0.4);
+    color: #fff;
+}
+
+.light-theme .fixed-navbar button {
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    border: 1px solid rgba(100, 150, 255, 0.3);
+}
+
+.light-theme .fixed-navbar button:hover {
+    background: rgba(220, 220, 255, 0.8);
+}
+
+.light-theme .fixed-navbar button.active {
+    background: rgba(74, 108, 247, 0.4);
+    color: #fff;
+}
+
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--main-bg);
+            cursor: default;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-color);
+            padding: 0;
+            position: relative;
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 5px;
+            width: 0;
+            background: rgba(255, 255, 255, 0.3);
+            z-index: 10000;
+            transition: width 0.1s ease-out, opacity 0.3s ease;
+        }
+
+        .fixed-navbar {
+            position: fixed;
+            top: 5px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 10px;
+            background: var(--navbar-bg);
+            backdrop-filter: blur(10px);
+            z-index: 9999;
+            border-bottom: 1px solid rgba(100, 150, 255, 0.2);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .fixed-navbar.visible {
+            opacity: 1;
+        }
+
+        .fixed-navbar button {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: none;
+            background: rgba(20, 25, 50, 0.6);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .fixed-navbar button:hover {
+            background: rgba(30, 35, 70, 0.8);
+            color: var(--text-color);
+        }
+
+        .fixed-navbar button.active {
+            background: rgba(100, 150, 255, 0.4);
+            color: var(--text-color);
+            box-shadow: 0 0 10px rgba(100, 150, 255, 0.5);
+        }
+
+.theme-toggle {
+    position: fixed;
+    top: 70px;
+    right: 20px;
+    z-index: 10001; /* Чуть ниже, чем у навигации */
+    background: var(--navbar-bg);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: none; /* Скрыта по умолчанию */
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(100, 150, 255, 0.2);
+    color: var(--text-color);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.fixed-navbar.visible ~ .theme-toggle {
+    display: flex; /* Показывается, когда навигация видна */
+    opacity: 1;
+}
+
+.logo-section {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--logo-bg-image) no-repeat center center fixed;
+    background-size: cover;
+    position: relative;
+    overflow: hidden;
+    transition: opacity 0.5s ease;
+}
+
+        .logo {
+            font-family: 'Cinzel', serif;
+            font-size: 8rem;
+            color: #000000;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 30px;
+            background: var(--navbar-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 0 0 25px 25px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            border-top: none;
+        }
+
+        h1 {
+            margin-bottom: 15px;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.4);
+            color: var(--text-color);
+            font-weight: 700;
+            font-size: 2.8rem;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            color: var(--accent-color);
+            font-size: 1.3rem;
+            max-width: 900px;
+            margin: 0 auto 25px;
+            line-height: 1.6;
+            font-weight: 300;
+        }
+
+        .search-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px auto;
+            max-width: 600px;
+            position: relative;
+        }
+
+        #search-input {
+            flex: 1;
+            padding: 12px 20px;
+            border-radius: 20px 0 0 20px;
+            border: none;
+            background: rgba(20, 25, 50, 0.6);
+            color: var(--text-color);
+            font-size: 1rem;
+            outline: none;
+        }
+
+        #search-input::placeholder {
+            color: var(--accent-color);
+        }
+
+        #search-button {
+            padding: 12px 20px;
+            border-radius: 0 20px 20px 0;
+            border: none;
+            background: rgba(100, 150, 255, 0.6);
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        #search-button:hover {
+            background: rgba(100, 150, 255, 0.8);
+        }
+
+        .autocomplete-items {
+            position: absolute;
+            border: 1px solid rgba(100, 150, 255, 0.3);
+            border-top: none;
+            z-index: 99;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border-radius: 0 0 20px 20px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .autocomplete-item {
+            padding: 10px 20px;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+
+        .autocomplete-item:hover {
+            background: rgba(100, 150, 255, 0.2);
+        }
+
+        .filters {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px auto;
+            flex-wrap: wrap;
+            max-width: 1200px;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: none;
+            background: rgba(20, 25, 50, 0.6);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .filter-btn:hover {
+            background: rgba(30, 35, 70, 0.8);
+            color: var(--text-color);
+        }
+
+        .filter-btn.active {
+            background: rgba(100, 150, 255, 0.4);
+            color: var(--text-color);
+            box-shadow: 0 0 10px rgba(100, 150, 255, 0.5);
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(100, 100, 255, 0.2);
+            height: 380px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .card:hover {
+            transform: translateY(-10px) scale(1.03);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4),
+                        0 0 0 3px rgba(100, 150, 255, 0.5),
+                        0 0 20px rgba(100, 150, 255, 0.4);
+            background: rgba(30, 35, 70, 0.8);
+            z-index: 2;
+        }
+
+        .card-image {
+            height: 180px;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .card:hover .card-image img {
+            transform: scale(1.1);
+        }
+
+        .card-content {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            color: var(--text-color);
+            font-weight: 600;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .card-description {
+            color: var(--text-color);
+            opacity: 0.8;
+            font-size: 1rem;
+            line-height: 1.5;
+            overflow: hidden;
+            position: relative;
+            max-height: 4.5em;
+        }
+
+        .card-description:after {
+            content: "...";
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            padding-left: 5px;
+            background: linear-gradient(to right, transparent, var(--card-bg) 50%);
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card-tag {
+            background: var(--tag-bg);
+            color: var(--text-color);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+        }
+
+        .card-date {
+            color: var(--text-color);
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        .favorite-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-color);
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            z-index: 3;
+        }
+
+        .favorite-btn.active {
+            color: #ff3366;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .compare-checkbox {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 20px;
+            height: 20px;
+            z-index: 3;
+        }
+
+        .click-effect {
+            position: fixed;
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            pointer-events: none;
+            z-index: 10000;
+            mix-blend-mode: screen;
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        .click-effect.animate {
+            animation: clickAnimation 0.5s ease-out forwards;
+        }
+
+        @keyframes clickAnimation {
+            0% {
+                width: 0;
+                height: 0;
+                opacity: 0.9;
+                transform: translate(-50%, -50%) scale(0);
+            }
+            50% {
+                opacity: 0.7;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            100% {
+                width: 38px;
+                height: 38px;
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1.5);
+            }
+        }
+
+        /* Стили для викторины */
+        .quiz-container {
+            padding: 20px;
+            color: var(--text-color);
+        }
+        .quiz-question {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .quiz-options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+        .quiz-option {
+            padding: 15px;
+            color: var(--text-color);
+            background: rgba(100, 150, 255, 0.1);
+            border: 2px solid rgba(100, 150, 255, 0.3);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            font-size: 1rem;
+        }
+        .quiz-option:hover {
+            background: rgba(100, 150, 255, 0.2);
+            transform: translateX(5px);
+        }
+        .quiz-option.correct {
+            background: rgba(76, 175, 80, 0.3);
+            border-color: #4CAF50;
+        }
+        .quiz-option.incorrect {
+            background: rgba(244, 67, 54, 0.3);
+            border-color: #F44336;
+        }
+        .quiz-progress {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .quiz-score {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+        .quiz-next {
+            padding: 12px 25px;
+            background: var(--accent-color);
+            color: var(--text-color);
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: none;
+        }
+        .quiz-next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(100, 150, 255, 0.4);
+        }
+        .quiz-results {
+            text-align: center;
+            padding: 30px;
+        }
+        .quiz-final-score {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: var(--accent-color);
+        }
+        .quiz-message {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+        .quiz-restart {
+            padding: 15px 30px;
+            background: var(--accent-color);
+            color: var(--text-color);
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .quiz-restart:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(100, 150, 255, 0.4);
+        }
+        /* Модальные окна */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10000;
+            overflow-y: auto;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: var(--modal-bg);
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 1000px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+            color: var(--text-color);
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.5rem;
+            color: var(--text-color);
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .close-modal:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .artist-details {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .artist-header {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+        }
+
+        .artist-image {
+            flex: 0 0 300px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .artist-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .artist-info {
+            flex: 1;
+        }
+
+        .artist-name {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: var(--text-color);
+        }
+
+        .artist-style {
+            font-size: 1.2rem;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+        }
+
+        .artist-bio {
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: var(--text-color);
+        }
+
+        .artist-works {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .work-item {
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .work-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .work-item:hover img {
+            transform: scale(1.05);
+        }
+
+        .work-title {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 8px;
+            font-size: 0.9rem;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            color: white;
+        }
+
+        .work-item:hover .work-title {
+            opacity: 1;
+        }
+
+        /* Адаптивность */
+    @media (max-width: 768px) {
+    .container {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 8px;
+    }
+.card {
+        height: 320px; /* Уменьшаем высоту карточки */
+        margin-bottom: 8px; /* Уменьшаем отступ снизу */
+    }
+
+    .card-image {
+        height: 150px; /* Уменьшаем высоту изображения */
+    }
+
+    .card-content {
+        padding: 15px; /* Уменьшаем внутренние отступы */
+    }
+
+    .card-title {
+        font-size: 1.2rem; /* Уменьшаем размер заголовка */
+        margin-bottom: 8px;
+    }
+
+    .card-description {
+        font-size: 0.9rem; /* Уменьшаем размер текста */
+        line-height: 1.4;
+        max-height: 3.5em; /* Уменьшаем максимальную высоту текста */
+    }
+
+    .card-footer {
+        padding-top: 12px;
+        margin-top: 10px;
+    }
+
+    .card-tag {
+        font-size: 0.8rem;
+        padding: 4px 10px;
+    }
+
+    .card-date {
+        font-size: 0.8rem;
+    }
+
+    .favorite-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+    }
+
+    .compare-checkbox {
+        width: 18px;
+        height: 18px;
+    }
+
+    h1 {
+        font-size: 1.6rem;
+        text-align: center;
+        margin: 12px 0;
+    }
+    
+    .logo {
+        font-size: 2.8rem;
+        text-align: center;
+    }
+
+    .artist-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+        padding: 15px;
+    }
+
+    .artist-info h2 {
+        font-size: 1.6rem;
+    }
+
+    .artist-image {
+        width: 100%;
+        max-width: 250px;
+        margin: 0 auto;
+    }
+
+    /* Дополнительные часто необходимые правки */
+    body {
+        font-size: 14px;
+    }
+    
+    /* Улучшение для навигации - горизонтальная прокрутка */
+    .fixed-navbar {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        justify-content: flex-start;
+        padding: 8px 5px;
+        white-space: nowrap;
+    }
+    
+    .fixed-navbar::-webkit-scrollbar {
+        display: none;
+    }
+    
+    .fixed-navbar button {
+        flex-shrink: 0;
+        padding: 8px 14px;
+        font-size: 0.85rem;
+        margin: 0 4px;
+    }
+    
+    /* Перемещение иконки темы под навигацию */
+    .theme-toggle {
+        position: fixed;
+        top: 60px; /* Располагаем под навигационной панелью */
+        right: 15px;
+        z-index: 10001;
+        background: var(--navbar-bg);
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;transition: opacity 0.3s ease; /* Добавляем плавное исчезновение */
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(100, 150, 255, 0.2);
+        color: var(--text-color);
+        opacity: 1; /* Всегда видима на мобильных */
+        transition: opacity 0.3s ease; /* Добавляем плавное исчезновение */
+    }
+    
+    /* Улучшение кнопок */
+    .btn {
+        width: 100%;
+        padding: 10px;
+        margin: 4px 0;
+    }
+    
+    /* Скрытие неважных элементов на мобильных */
+    .desktop-only {
+        display: none;
+    }
+    
+    /* Индикатор прокрутки для навигации */
+    .scroll-indicator {
+        text-align: center;
+        margin-top: 5px;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.9rem;
+        display: none !important;
+    }
+}
+
+/* Добавьте также эти медиа-запросы */
+@media (max-width: 480px) {
+    
+        .container {
+        gap: 10px;
+        padding: 5px;
+    }
+
+    .card {
+        height: 300px;
+        margin-bottom: 6px;
+    }
+
+    .card-image {
+        height: 140px;
+    }
+
+    .card-content {
+        padding: 12px;
+    }
+
+    .card-title {
+        font-size: 1.1rem;
+    }
+
+    .card-description {
+        font-size: 0.85rem;
+        max-height: 3.2em;
+    }
+    
+    h1 {
+        font-size: 1.4rem;
+        margin: 10px 0;
+    }
+    .logo {
+        font-size: 2.5rem;
+    }
+    
+    .fixed-navbar button {
+        padding: 7px 12px;
+        font-size: 0.8rem;
+    }
+    
+    .theme-toggle {
+        width: 35px;
+        height: 35px;
+        top: 55px;
+        right: 12px;
+    }
+
+        .artist-header {
+        padding: 12px;
+        gap: 12px;
+    }
+
+    .artist-image {
+        max-width: 220px;
+    }
+
+    .artist-info h2 {
+        font-size: 1.4rem;
+    }
+
+
+}
+
+@media (max-width: 320px) {
+    
+    .card {
+        height: 280px;
+    }
+
+    .card-image {
+        height: 130px;
+    }
+
+    .card-title {
+        font-size: 1rem;
+    }
+
+    .container {
+        padding: 5px;
+    }
+    h1 {
+        font-size: 1.3rem;
+    }
+    
+    .theme-toggle {
+        width: 32px;
+        height: 32px;
+    }
+
+    .fixed-navbar button {
+        padding: 6px 10px;
+        font-size: 0.75rem;
+    }
+}
+
+        /* Стили для футера */
+        .footer {
+            background: var(--navbar-bg);
+            padding: 20px;
+            text-align: center;
+            margin-top: 40px;
+            border-top: 1px solid rgba(100, 150, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .footer-link:hover {
+            color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        .footer-icon {
+            font-size: 1.2rem;
+        }
+
+/* Модальное окно для картин */
+.modal#pictureModal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 10001;
+    overflow: hidden;
+    backdrop-filter: blur(5px);
+}
+
+.picture-modal-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+#fullscreenPicture {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+}
+
+.nav-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 10002;
+    transition: all 0.3s ease;
+}
+
+.nav-arrow:hover {
+    background: rgba(100, 150, 255, 0.7);
+}
+
+.left-arrow {
+    left: 20px;
+}
+
+.right-arrow {
+    right: 20px;
+}
+
+#closePictureModal {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 2rem;
+    color: white;
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: 10002;
+}
+
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+    <div class="fixed-navbar" id="fixedNavbar">
+        <button id="home-button">Главная</button>
+        <button id="gallery-button">Галерея художников</button>
+        <button id="favorites-button">Избранное</button>
+        <button id="compare-button">Сравнить</button>
+        <button id="quiz-button">Викторина</button>
+    </div>
+
+    <div class="modal" id="quizModal">
+        <div class="modal-content">
+            <button class="close-modal" id="closeQuizModal">&times;</button>
+            <div class="quiz-container" id="quizContainer">
+                <!-- Содержимое викторины будет заполнено JavaScript -->
+            </div>
+        </div>
+    </div>
+    <div class="theme-toggle" id="themeToggle">
+        <i class="fas fa-moon"></i>
+    </div>
+
+    <div class="logo-section">
+        <div class="logo">ART PULSE</div>
+    </div>
+
+    <div class="header">
+        <h1>Галерея известных художников</h1>
+        <p class="subtitle">
+            Исследуйте творчество величайших мастеров живописи со всего мира.
+            Наведите на карточки, чтобы увидеть анимацию и узнать больше о каждом художнике.
+        </p>
+    </div>
+
+    <div class="search-container">
+        <input type="text" id="search-input" placeholder="Найти художника или стиль...">
+        <button id="search-button">Поиск</button>
+        <div class="autocomplete-items" id="autocomplete-list"></div>
+    </div>
+
+    <div class="filters" id="filters">
+        <button class="filter-btn active" data-filter="all">Все</button>
+        <button class="filter-btn" data-filter="Импрессионизм">Импрессионизм</button>
+        <button class="filter-btn" data-filter="Ренессанс">Ренессанс</button>
+        <button class="filter-btn" data-filter="Сюрреализм">Сюрреализм</button>
+        <button class="filter-btn" data-filter="Экспрессионизм">Экспрессионизм</button>
+        <button class="filter-btn" data-filter="Авангард">Авангард</button>
+        <button class="filter-btn" data-filter="Реализм">Реализм</button>
+        <button class="filter-btn" data-filter="Абстракционизм">Абстракционизм</button>
+        <button class="filter-btn" data-filter="Романтизм">Романтизм</button>
+        <button class="filter-btn" data-filter="Барокко">Барокко</button>
+        <button class="filter-btn" data-filter="Модернизм">Модернизм</button>
+    </div>
+
+    <div class="container" id="cards-container">
+        <!-- Карточки будут сгенерированы с помощью JavaScript -->
+    </div>
+
+    <!-- Модальное окно деталей художника -->
+     <!-- Модальное окно для просмотра картин -->
+    <div class="modal" id="pictureModal">
+    <div class="modal-content picture-modal-content">
+        <button class="close-modal" id="closePictureModal">&times;</button>
+        <button class="nav-arrow left-arrow" id="prevPicture">&larr;</button>
+        <img id="fullscreenPicture" src="" alt="Картина на весь экран">
+        <button class="nav-arrow right-arrow" id="nextPicture">&rarr;</button>
+    </div>
+    </div>
+    <div class="modal" id="artistModal">
+        <div class="modal-content">
+            <button class="close-modal" id="closeArtistModal">&times;</button>
+            <div class="artist-details" id="artistDetails">
+                <!-- Содержимое будет заполнено JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Футер -->
+    <footer class="footer">
+        <div class="footer-content">
+            <a href="https://t.me/L3RR0y" class="footer-link" target="_blank" rel="noopener noreferrer">
+                <i class="fab fa-telegram footer-icon"></i>
+                <span>Telegram</span>
+            </a>
+            <a href="mailto:deliandk2280w@yandex.ru" class="footer-link">
+                <i class="fas fa-envelope footer-icon"></i>
+                <span>Почта</span>
+            </a>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Основные элементы DOM
+            const navContainer = document.querySelector('.fixed-navbar');
+            const scrollIndicator = document.querySelector('.scroll-indicator');
+            const progressBar = document.getElementById('progressBar');
+            const fixedNavbar = document.getElementById('fixedNavbar');
+            const homeButton = document.getElementById('home-button');
+            const galleryButton = document.getElementById('gallery-button');
+            const favoritesButton = document.getElementById('favorites-button');
+            const compareButton = document.getElementById('compare-button');
+            const searchInput = document.getElementById('search-input');
+            const searchButton = document.getElementById('search-button');
+            const autocompleteList = document.getElementById('autocomplete-list');
+            const logoSection = document.querySelector('.logo-section');
+            const themeToggle = document.getElementById('themeToggle');
+            const artistModal = document.getElementById('artistModal');
+            const closeArtistModal = document.getElementById('closeArtistModal');
+            const artistDetails = document.getElementById('artistDetails');
+            const container = document.getElementById('cards-container');
+            
+                function checkNavScroll() {
+        if (navContainer.scrollWidth > navContainer.offsetWidth) {
+            scrollIndicator.style.display = 'block';
+        } else {
+            scrollIndicator.style.display = 'none';
+        }
+    }
+            
+            // Цвета для эффектов
+            const colors = ['#FF5252', '#FF7B25', '#FFD166', '#06D6A0', '#118AB2', '#9D4EDD'];
+            // Данные художников (50 уникальных художников)
+            const artistsData = [
+                {
+                    name: "Винсент ван Гог",
+                    style: "Постимпрессионизм",
+                    image: "artist.jpg",
+                    bio: "Нидерландский художник-постимпрессионист, чьи работы оказали вневременное влияние на искусство XX века. За десять с небольшим лет он создал более 2100 произведений, включая около 860 картин маслом.",
+                    works: [
+                        { title: "Звёздная ночь", image: "work1.jpg", year: "1889" },
+                        { title: "Подсолнухи", image: "work2.jpg", year: "1888" },
+                        { title: "Ночная терраса кафе", image: "work3.jpg", year: "1888" }
+                    ],
+                    facts: ["Продал только одну картину при жизни", "Отрезал себе часть уха", "Написал более 800 писем своему брату Тео"]
+                },
+                {
+                    name: "Леонардо да Винчи",
+                    style: "Ренессанс",
+                    image: "artist1.jpg",
+                    bio: "Итальянский художник, учёный, изобретатель, писатель, музыкант и один из крупнейших представителей искусства Высокого Возрождения. Яркий пример «универсального человека».",
+                    works: [
+                        { title: "Мона Лиза", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg/300px-Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg", year: "1503" },
+                        { title: "Тайная вечеря", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/%C3%9Altima_Cena_-_Da_Vinci_5.jpg/300px-%C3%9Altima_Cena_-_Da_Vinci_5.jpg", year: "1498" },
+                        { title: "Витрувианский человек", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Da_Vinci_Vitruve_Luc_Viatour.jpg/300px-Da_Vinci_Vitruve_Luc_Viatour.jpg", year: "1490" }
+                    ],
+                    facts: ["Был вегетарианцем", "Писал справа налево", "Изучал анатомию человека, вскрывая трупы"]
+                },
+                {
+                    name: "Пабло Пикассо",
+                    style: "Кубизм",
+                    image: "artist2.jpg",
+                    bio: "Испанский художник, скульптор и график, один из основоположников кубизма. Один из самых влиятельных художников XX века.",
+                    works: [
+                        { title: "Герника", image: "work4.jpg", year: "1937" },
+                        { title: "Авиньонские девицы", image: "work5.jpg", year: "1907" },
+                        { title: "Плачущая женщина", image: "work6.jpg", year: "1937" }
+                    ],
+                    facts: ["Создал более 50 000 произведений", "Полное имя состоит из 23 слов", "Был одним из основателей кубизма"]
+                },
+                {
+                    name: "Клод Моне",
+                    style: "Импрессионизм",
+                    image: "artist3.jpg",
+                    bio: "Французский художник, один из основателей импрессионизма. Известен своими пейзажами с природой и исследованиями света и цвета.",
+                    works: [
+                        { title: "Впечатление. Восходящее солнце", image: "work7.jpg", year: "1872" },
+                        { title: "Водяные лилии", image: "work8.jpg", year: "1906" },
+                        { title: "Руанский собор", image: "work9.jpg", year: "1894" }
+                    ],
+                    facts: ["Название 'импрессионизм' произошло от его картины", "Писал одну и ту же сцену много раз в разное время суток", "В старости страдал катарактой"]
+                },
+                {
+                    name: "Микеланджело Буонарроти",
+                    style: "Ренессанс",
+                    image: "artist4.jpg",
+                    bio: "Итальянский скульптор, художник, архитектор и поэт эпохи Высокого Возрождения. Автор фресок Сикстинской капеллы.",
+                    works: [
+                        { title: "Сотворение Адама", image: "work10.jpg", year: "1512" },
+                        { title: "Давид", image: "work11.jpg", year: "1504" },
+                        { title: "Пьета", image: "work12.jpg", year: "1499" }
+                    ],
+                    facts: ["Работал над Сикстинской капеллой 4 года", "Считал себя в первую очередь скульптором", "Был первым западным художником, чья биография была опубликована при жизни"]
+                },
+                {
+                    name: "Рембрандт ван Рейн",
+                    style: "Барокко",
+                    image: "artist5.jpg",
+                    bio: "Нидерландский художник, гравёр, великий мастер светотени, крупнейший представитель золотого века голландской живописи.",
+                    works: [
+                        { title: "Ночной дозор", image: "work13.jpg", year: "1642" },
+                        { title: "Возвращение блудного сына", image: "work14.jpg", year: "1669" },
+                        { title: "Анатомия доктора Тюльпа", image: "work15.jpg", year: "1632" }
+                    ],
+                    facts: ["Создал около 80 автопортретов", "Пережил банкротство в 1656 году", "Использовал сложные техники светотени"]
+                },
+                {
+                    name: "Сальвадор Дали",
+                    style: "Сюрреализм",
+                    image: "artist6.jpg",
+                    bio: "Испанский живописец, график, скульптор, режиссёр и писатель. Один из самых известных представителей сюрреализма.",
+                    works: [
+                        { title: "Постоянство памяти", image: "work16.jpg", year: "1931" },
+                        { title: "Лицо войны", image: "work17.jpg", year: "1940" },
+                        { title: "Сон, вызванный полётом пчелы", image: "work18.jpg", year: "1944" }
+                    ],
+                    facts: ["Был известен своими эксцентричными манерами", "Создал логотип Чупа-Чупс", "Написал автобиографию 'Тайная жизнь Сальвадора Дали'"]
+                },
+                {
+                    name: "Эдвард Мунк",
+                    style: "Экспрессионизм",
+                    image: "artist7.jpg",
+                    bio: "Норвежский живописец и график, театральный художник, теоретик искусства. Один из первых представителей экспрессионизма.",
+                    works: [
+                        { title: "Крик", image: "work19.jpg", year: "1893" },
+                        { title: "Мадонна", image: "work20.jpg", year: "1894" },
+                        { title: "Танец жизни", image: "work21.jpg", year: "1899" }
+                    ],
+                    facts: ["Картина 'Крик' была украдена дважды", "Тема смерти и тревоги часто присутствует в его работах", "Создал более 1000 картин и 4000 рисунков"]
+                },
+                {
+                    name: "Казимир Малевич",
+                    style: "Авангард",
+                    image: "artist8.jpg",
+                    bio: "Российский и советский художник-авангардист польского происхождения, педагог, теоретик искусства, философ. Основоположник супрематизма.",
+                    works: [
+                        { title: "Чёрный квадрат", image: "work22.jpg", year: "1915" },
+                        { title: "Белое на белом", image: "work23.jpg", year: "1918" },
+                        { title: "Супрематическая композиция", image: "work24.jpg", year: "1916" }
+                    ],
+                    facts: ["Создал направление 'супрематизм'", "'Чёрный квадрат' стал иконой современного искусства", "Был обвинен в 'формализме' в СССР"]
+                },
+                {
+                    name: "Иван Айвазовский",
+                    style: "Романтизм",
+                    image: "artist9.jpg",
+                    bio: "Русский живописец-маринист, коллекционер, меценат. Наиболее выдающийся художник-армянин XIX века. Брат армянского историка и архиепископа Габриэла Айвазовского.",
+                    works: [
+                        { title: "Девятый вал", image: "work25.jpg", year: "1850" },
+                        { title: "Чёрное море", image: "work26.jpg", year: "1881" },
+                        { title: "Радуга", image: "work27.jpg", year: "1873" }
+                    ],
+                    facts: ["Написал около 6000 картин", "Был живописцем Главного морского штаба", "Открыл в Феодосии первую художественную школу"]
+                },
+                {
+                    name: "Иероним Босх",
+                    style: "Северное Возрождение",
+                    image: "artist10.jpg",
+                    bio: "Нидерландский художник, один из самых загадочных живописцев в истории западного искусства. В творчестве Босха удивительным образом сочетались средневековые фантазии, алхимическая символика и порожденные его воображением чудовища.",
+                    works: [
+                        { title: "Сад земных наслаждений", image: "work28.jpg", year: "1510" },
+                        { title: "Страшный суд", image: "work29.jpg", year: "1504" },
+                        { title: "Воз сена", image: "work30.jpg", year: "1516" }
+                    ],
+                    facts: ["Его картины полны загадочных символов", "Творчество оказало влияние на сюрреалистов XX века", "Был членом Братства Богоматери"]
+                },
+                {
+                    name: "Диего Веласкес",
+                    style: "Барокко",
+                    image: "artist11.jpg",
+                    bio: "Испанский художник, величайший представитель золотого века испанской живописи. Придворный художник Филиппа IV. Мастер портрета, в том числе и психологического.",
+                    works: [
+                        { title: "Менины", image: "work31.jpg", year: "1656" },
+                        { title: "Венера с зеркалом", image: "work32.jpg", year: "1651" },
+                        { title: "Сдача Бреды", image: "work33.jpg", year: "1635" }
+                    ],
+                    facts: ["Был придворным художником короля Филиппа IV", "Оказал влияние на многих художников, включая Мане и Пикассо", "Был посвящен в рыцари ордена Сантьяго"]
+                },
+                {
+                    name: "Поль Гоген",
+                    style: "Постимпрессионизм",
+                    image: "artist12.jpg",
+                    bio: "Французский живописец, скульптор-керамист и график. Наряду с Сезанном и Ван Гогом был крупнейшим представителем постимпрессионизма.",
+                    works: [
+                        { title: "Откуда мы пришли? Кто мы? Куда мы идём?", image: "work34.jpg", year: "1898" },
+                        { title: "Жёлтый Христос", image: "work35.jpg", year: "1889" },
+                        { title: "Таитянские женщины на побережье", image: "work36.jpg", year: "1891" }
+                    ],
+                    facts: ["Бросил карьеру биржевого брокера ради искусства", "Провел последние годы жизни на Таити", "Его творчество повлияло на развитие символизма и модерна"]
+                },
+                {
+                    name: "Марк Шагал",
+                    style: "Авангард",
+                    image: "artist13.jpg",
+                    bio: "Русский и французский художник белорусско-еврейского происхождения. Помимо графики и живописи занимался также сценографией, писал стихи на идише. Один из самых известных представителей художественного авангарда XX века.",
+                    works: [
+                        { title: "Над городом", image: "work37.jpg", year: "1918" },
+                        { title: "Я и деревня", image: "work38.jpg", year: "1911" },
+                        { title: "Прогулка", image: "work39.jpg", year: "1917" }
+                    ],
+                    facts: ["Прожил 97 лет", "Создавал витражи для соборов по всему миру", "Его работы сочетают элементы кубизма, фовизма и символизма"]
+                },
+                {
+                    name: "Василий Кандинский",
+                    style: "Абстракционизм",
+                    image: "artist14.jpg",
+                    bio: "Русский художник и теоретик искусства, стоявший у истоков абстракционизма. Один из основателей группы «Синий всадник». Преподавал в Баухаузе.",
+                    works: [
+                        { title: "Композиция VIII", image: "work40.jpg", year: "1923" },
+                        { title: "Жёлтое-красное-синее", image: "work41.jpg", year: "1925" },
+                        { title: "Несколько кругов", image: "work42.jpg", year: "1926" }
+                    ],
+                    facts: ["Считается создателем первого абстрактного произведения", "Обладал синестезией - 'видел' звуки", "Написал теоретическую работу 'О духовном в искусстве'"]
+                },
+                {
+                    name: "Густав Климт",
+                    style: "Модерн",
+                    image: "artist15.jpg",
+                    bio: "Австрийский художник, основоположник модерна в австрийской живописи. Главный предмет его живописи — женское тело, и большинство его работ отличает откровенный эротизм.",
+                    works: [
+                        { title: "Поцелуй", image: "work43.jpg", year: "1908" },
+                        { title: "Портрет Адели Блох-Бауэр I", image: "work44.jpg", year: "1907" },
+                        { title: "Юдифь и голова Олоферна", image: "work45.jpg", year: "1901" }
+                    ],
+                    facts: ["Был лидером Венского сецессиона", "Использовал сусальное золото в своих работах", "Его 'Золотая Адель' была продана за рекордные 135 миллионов долларов"]
+                },
+                {
+                    name: "Эдгар Дега",
+                    style: "Импрессионизм",
+                    image: "artist16.jpg",
+                    bio: "Французский живописец, один из виднейших представителей импрессионистского движения. Известен своими картинами, пастелями и скульптурами на тему танца.",
+                    works: [
+                        { title: "Голубые танцовщицы", image: "work46.jpg", year: "1899" },
+                        { title: "Абсент", image: "work47.jpg", year: "1876" },
+                        { title: "Танцевальный класс", image: "work48.jpg", year: "1874" }
+                    ],
+                    facts: ["Был прекрасным рисовальщиком", "В поздние годы почти ослеп и перешел к скульптуре", "Часто изображал балетные сцены"]
+                },
+                {
+                    name: "Пьер-Огюст Ренуар",
+                    style: "Импрессионизм",
+                    image: "artist17.jpg",
+                    bio: "Французский живописец, график и скульптор, один из основных представителей импрессионизма. Известен в первую очередь как мастер светского портрета.",
+                    works: [
+                        { title: "Бал в Мулен де ла Галетт", image: "work49.jpg", year: "1876" },
+                        { title: "Завтрак гребцов", image: "work50.jpg", year: "1881" },
+                        { title: "Девушки за фортепьяно", image: "work51.jpg", year: "1892" }
+                    ],
+                    facts: ["В старости страдал артритом, но продолжал рисовать", "Был отцом известного режиссера Жана Ренуара", "Его работы отличаются яркостью красок и живостью композиции"]
+                },
+                {
+                    name: "Анри Матисс",
+                    style: "Фовизм",
+                    image: "artist18.jpg",
+                    bio: "Французский художник и скульптор, лидер течения фовистов. Известен своими изысканиями в передаче эмоций через цвет и форму.",
+                    works: [
+                        { title: "Танец", image: "work52.jpg", year: "1910" },
+                        { title: "Красная комната", image: "work53.jpg", year: "1908" },
+                        { title: "Окно", image: "work54.jpg", year: "1905" }
+                    ],
+                    facts: ["В поздние годы создавал работы в технике декупажа", "Был одним из лидеров фовизма", "Его картина 'Танец' стала одной из самых узнаваемых в мире"]
+                },
+                {
+                    name: "Фрида Кало",
+                    style: "Сюрреализм",
+                    image: "artist19.jpg",
+                    bio: "Мексиканская художница, наиболее известная своими автопортретами. Жена Диего Риверы. Её творчество наполнено символами и отсылками к мексиканской народной культуре.",
+                    works: [
+                        { title: "Две Фриды", image: "work55.jpg", year: "1939" },
+                        { title: "Сломанная колонна", image: "work56.jpg", year: "1944" },
+                        { title: "Автопортрет с терновым венцом и колибри", image: "work57.jpg", year: "1940" }
+                    ],
+                    facts: ["Первая женщина-художник, чья работа была приобретена Лувром", "Перенесла полиомиелит в детстве и тяжелую аварию в юности", "Её творчество стало символом феминистского движения"]
+                },
+                {
+                    name: "Джексон Поллок",
+                    style: "Абстрактный экспрессионизм",
+                    image: "artist20.jpg",
+                    bio: "Американский художник, идеолог и лидер абстрактного экспрессионизма, оказавший значительное влияние на искусство второй половины XX века.",
+                    works: [
+                        { title: "Номер 5", image: "work58.jpg", year: "1948" },
+                        { title: "Осенний ритм", image: "work59.jpg", year: "1950" },
+                        { title: "Голубая стойка", image: "work60.jpg", year: "1952" }
+                    ],
+                    facts: ["Разработал технику 'капельной живописи'", "Его картина 'Номер 5' была продана за 140 миллионов долларов", "Трагически погиб в автомобильной катастрофе в возрасте 44 лет"]
+                },
+                {
+                    name: "Рафаэль Санти",
+                    style: "Ренессанс",
+                    image: "artist21.jpg",
+                    bio: "Итальянский живописец, график и архитектор, один из ярчайших представителей Высокого Возрождения. С классической ясностью и возвышенной одухотворенностью воплотил жизнеутверждающие идеалы эпохи.",
+                    works: [
+                        { title: "Афинская школа", image: "work61.jpg", year: "1511" },
+                        { title: "Сикстинская Мадонна", image: "work62.jpg", year: "1513" },
+                        { title: "Преображение", image: "work63.jpg", year: "1520" }
+                    ],
+                    facts: ["Умер в день своего 37-летия", "Был архитектором собора Святого Петра в Риме", "Его творчество стало образцом академического совершенства"]
+                },
+                {
+                    name: "Эль Греко",
+                    style: "Маньеризм",
+                    image: "artist22.jpg",
+                    bio: "Испанский художник греческого происхождения. Его творчество, с духовной экзальтацией и своеобразной манерой, стоит особняком в европейской живописи.",
+                    works: [
+                        { title: "Погребение графа Оргаса", image: "work64.jpg", year: "1588" },
+                        { title: "Вид Толедо", image: "work65.jpg", year: "1600" },
+                        { title: "Снятие пятой печати", image: "work66.jpg", year: "1614" }
+                    ],
+                    facts: ["Был забыт на несколько веков и заново открыт в начале XX века", "Его удлиненные фигуры повлияли на модернистов", "Родился на Крите, работал в Италии и Испании"]
+                },
+                {
+                    name: "Питер Брейгель Старший",
+                    style: "Северное Возрождение",
+                    image: "artist23.jpg",
+                    bio: "Нидерландский живописец и график, самый известный и значительный из носивших эту фамилию художников. Мастер пейзажа и жанровых сцен.",
+                    works: [
+                        { title: "Охотники на снегу", image: "work67.jpg", year: "1565" },
+                        { title: "Вавилонская башня", image: "work68.jpg", year: "1563" },
+                        { title: "Крестьянская свадьба", image: "work69.jpg", year: "1568" }
+                    ],
+                    facts: ["Был прозван 'Мужицким' за любовь к изображению крестьянской жизни", "Его сыновья также стали известными художниками", "Творчество оказало влияние на развитие жанровой и пейзажной живописи"]
+                },
+                {
+                    name: "Франсиско Гойя",
+                    style: "Романтизм",
+                    image: "artist24.jpg",
+                    bio: "Испанский художник и гравёр, один из первых и наиболее ярких мастеров изобразительного искусства эпохи романтизма.",
+                    works: [
+                        { title: "Третье мая 1808 года в Мадриде", image: "work70.jpg", year: "1814" },
+                        { title: "Маха", image: "work71.jpg", year: "1800" },
+                        { title: "Сатурн, пожирающий своего сына", image: "work72.jpg", year: "1823" }
+                    ],
+                    facts: ["Был придворным художником короля Карла IV", "В конце жизни создал мрачные 'Чёрные картины'", "Глубоко отразил ужасы войны в своем творчестве"]
+                },
+                {
+                    name: "Жорж Сёра",
+                    style: "Пуантилизм",
+                    image: "artist25.jpg",
+                    bio: "Французский художник-постимпрессионист, основатель неоимпрессионизма, создатель метода живописи, называемого «дивизионизмом» или «пуантилизмом».",
+                    works: [
+                        { title: "Воскресный день на острове Гранд-Жатт", image: "work73.jpg", year: "1886" },
+                        { title: "Купальщики в Аньере", image: "work74.jpg", year: "1884" },
+                        { title: "Цирк", image: "work75.jpg", year: "1891" }
+                    ],
+                    facts: ["Разработал технику пуантилизма (точечного рисунка)", "Умер в возрасте 31 года от дифтерии", "Его творчество повлияло на развитие неоимпрессионизма"]
+                },
+                {
+                    name: "Тициан",
+                    style: "Возрождение",
+                    image: "artist26.jpg",
+                    bio: "Итальянский живописец, крупнейший представитель венецианской школы эпохи Высокого и Позднего Возрождения.",
+                    works: [
+                        { title: "Любовь земная и небесная", image: "work76.jpg", year: "1514" },
+                        { title: "Венера Урбинская", image: "work77.jpg", year: "1538" },
+                        { title: "Даная", image: "work78.jpg", year: "1554" }
+                    ],
+                    facts: ["Прожил почти 90 лет", "Был придворным художником императора Карла V", "Его творчество оказало влияние на многих художников, включая Рубенса и Веласкеса"]
+                },
+                {
+                    name: "Поль Сезанн",
+                    style: "Постимпрессионизм",
+                    image: "artist27.jpg",
+                    bio: "Французский художник-живописец, яркий представитель постимпрессионизма. Считается одним из величайших колористов в истории искусства.",
+                    works: [
+                        { title: "Гора Сент-Виктуар", image: "work79.jpg", year: "1904" },
+                        { title: "Игроки в карты", image: "work80.jpg", year: "1895" },
+                        { title: "Натюрморт с яблоками", image: "work81.jpg", year: "1894" }
+                    ],
+                    facts: ["Считается 'отцом современного искусства'", "Его творчество повлияло на кубистов и фовистов", "Часто изображал гору Сент-Виктуар в Провансе"]
+                },
+                {
+                    name: "Антонис ван Дейк",
+                    style: "Барокко",
+                    image: "artist28.jpg",
+                    bio: "Южнонидерландский (фламандский) живописец и график, мастер придворного портрета и религиозных сюжетов в стиле барокко.",
+                    works: [
+                        { title: "Карл I на охоте", image: "work82.jpg", year: "1635" },
+                        { title: "Самсон и Далила", image: "work83.jpg", year: "1630" },
+                        { title: "Конный портрет Карла I", image: "work84.jpg", year: "1638" }
+                    ],
+                    facts: ["Был главным придворным художником Карла I", "Создал новый тип аристократического портрета", "Его творчество повлияло на английскую портретную живопись"]
+                },
+                {
+                    name: "Уильям Тёрнер",
+                    style: "Романтизм",
+                    image: "artist29.jpg",
+                    bio: "Британский живописец, мастер романтического пейзажа, акварелист и гравёр. Предтеча французских импрессионистов.",
+                    works: [
+                        { title: "Дождь, пар и скорость", image: "work85.jpg", year: "1844" },
+                        { title: "Последний рейс корабля «Отважный»", image: "work86.jpg", year: "1839" },
+                        { title: "Снежная буря", image: "work87.jpg", year: "1842" }
+                    ],
+                    facts: ["Считается предтечей импрессионизма", "Был известен своими изображениями моря и кораблей", "Завещал свое состояние британской нации"]
+                },
+                {
+                    name: "Жан-Франсуа Милле",
+                    style: "Реализм",
+                    image: "artist30.jpg",
+                    bio: "Французский художник, один из основателей барбизонской школы. Известен своими изображениями крестьян и сельской жизни.",
+                    works: [
+                        { title: "Анжелюс", image: "work88.jpg", year: "1859" },
+                        { title: "Сборщицы колосьев", image: "work89.jpg", year: "1857" },
+                        { title: "Человек с мотыгой", image: "work90.jpg", year: "1862" }
+                    ],
+                    facts: ["Был одним из основателей барбизонской школы", "Его творчество повлияло на Ван Гога", "Изображал жизнь крестьян с большим уважением и достоинством"]
+                },
+                {
+                    name: "Ганс Гольбейн Младший",
+                    style: "Северное Возрождение",
+                    image: "artist31.jpg",
+                    bio: "Немецкий живописец и график, один из величайших портретистов своего времени. Был придворным художником короля Генриха VIII.",
+                    works: [
+                        { title: "Послы", image: "work91.jpg", year: "1533" },
+                        { title: "Портрет Генриха VIII", image: "work92.jpg", year: "1540" },
+                        { title: "Портрет Томаса Мора", image: "work93.jpg", year: "1527" }
+                    ],
+                    facts: ["Был придворным художником Генриха VIII", "Создал знаменитый портрет короля, ставший каноническим", "Умер от чумы в Лондоне"]
+                },
+                {
+                    name: "Эжен Делакруа",
+                    style: "Романтизм",
+                    image: "artist32.jpg",
+                    bio: "Французский живописец и график, предводитель романтического направления в европейской живописи.",
+                    works: [
+                        { title: "Свобода, ведущая народ", image: "work94.jpg", year: "1830" },
+                        { title: "Смерть Сарданапала", image: "work95.jpg", year: "1827" },
+                        { title: "Алжирские женщины", image: "work96.jpg", year: "1834" }
+                    ],
+                    facts: ["Был вдохновлен творчеством Рубенса", "Его картина 'Свобода, ведущая народ' стала символом французской революции", "Вел подробный дневник, который является ценным историческим документом"]
+                },
+                {
+                    name: "Джотто ди Бондоне",
+                    style: "Проторенессанс",
+                    image: "artist33.jpg",
+                    bio: "Итальянский художник и архитектор, основоположник проторенессанса. Отошёл от средневековых канонов и положил начало новому изобразительному искусству.",
+                    works: [
+                        { title: "Поцелуй Иуды", image: "work97.jpg", year: "1306" },
+                        { title: "Оплакивание Христа", image: "work98.jpg", year: "1306" },
+                        { title: "Мадонна Оньиссанти", image: "work99.jpg", year: "1310" }
+                    ],
+                    facts: ["Считается отцом европейской живописи", "Расписал фресками капеллу Скровеньи в Падуе", "Был современником Данте Алигьери"]
+                },
+                {
+                    name: "Анри де Тулуз-Лотрек",
+                    style: "Постимпрессионизм",
+                    image: "artist34.jpg",
+                    bio: "Французский художник-постимпрессионист, мастер графики и рекламного плаката. Известен своими изображениями парижской ночной жизни.",
+                    works: [
+                        { title: "Мулен Руж, Ла Гулю", image: "work100.jpg", year: "1891" },
+                        { title: "Танец в Мулен Руж", image: "work101.jpg", year: "1890" },
+                        { title: "Японский диван", image: "work102.jpg", year: "1893" }
+                    ],
+                    facts: ["Был аристократом, но предпочитал богемную жизнь", "Из-за врожденного заболевания имел очень низкий рост", "Создал множество афиш для кабаре и театров Парижа"]
+                },
+                {
+                    name: "Джорджоне",
+                    style: "Высокое Возрождение",
+                    image: "artist35.jpg",
+                    bio: "Итальянский художник, представитель венецианской школы живописи; один из величайших мастеров Высокого Возрождения.",
+                    works: [
+                        { title: "Спящая Венера", image: "work103.jpg", year: "1510" },
+                        { title: "Гроза", image: "work104.jpg", year: "1508" },
+                        { title: "Три философа", image: "work105.jpg", year: "1509" }
+                    ],
+                    facts: ["Умер в возрасте около 33 лет от чумы", "Был учителем Тициана", "Его творчество окутано тайной, так как мало что известно о его жизни"]
+                },
+                {
+                    name: "Ян Вермеер",
+                    style: "Золотой век Голландии",
+                    image: "artist36.jpg",
+                    bio: "Нидерландский художник-живописец, мастер бытовой живописи и жанрового портрета. Наряду с Рембрандтом и Франсом Халсом является одним из величайших живописцев золотого века голландского искусства.",
+                    works: [
+                        { title: "Девушка с жемчужной серёжкой", image: "work106.jpg", year: "1665" },
+                        { title: "Молочница", image: "work107.jpg", year: "1660" },
+                        { title: "Вид Делфта", image: "work108.jpg", year: "1661" }
+                    ],
+                    facts: ["Написал всего около 36 картин", "Использовал камеру-обскуру для создания своих работ", "Был забыт на два века и заново открыт в XIX веке"]
+                },
+                {
+                    name: "Питер Пауль Рубенс",
+                    style: "Барокко",
+                    image: "artist37.jpg",
+                    bio: "Нидерландский (фламандский) живописец, один из основоположников искусства барокко, дипломат и коллекционер. Творческое наследие Рубенса насчитывает около 3000 картин.",
+                    works: [
+                        { title: "Похищение дочерей Левкиппа", image: "work109.jpg", year: "1618" },
+                        { title: "Снятие с креста", image: "work110.jpg", year: "1614" },
+                        { title: "Три грации", image: "work111.jpg", year: "1639" }
+                    ],
+                    facts: ["Был дипломатом и путешествовал по всей Европе", "Имел большую мастерскую с множеством учеников", "Его стиль характеризуется динамичностью и чувственностью"]
+                },
+                {
+                    name: "Альбрехт Дюрер",
+                    style: "Северное Возрождение",
+                    image: "artist38.jpg",
+                    bio: "Немецкий живописец и график, один из величайших мастеров западноевропейского Ренессанса. Признан крупнейшим европейским мастером ксилографии.",
+                    works: [
+                        { title: "Руки молящегося", image: "work112.jpg", year: "1508" },
+                        { title: "Заяц", image: "work113.jpg", year: "1502" },
+                        { title: "Адам и Ева", image: "work114.jpg", year: "1507" }
+                    ],
+                    facts: ["Был первым немецким художником, который работал маслом", "Создал множество гравюр, которые распространились по всей Европе", "Был теоретиком искусства и написал несколько трактатов"]
+                },
+                {
+                    name: "Густав Курбе",
+                    style: "Реализм",
+                    image: "artist39.jpg",
+                    bio: "Французский живописец, пейзажист, жанрист и портретист. Считается одним из завершителей романтизма и основателей реализма в живописи.",
+                    works: [
+                        { title: "Мастерская художника", image: "work115.jpg", year: "1855" },
+                        { title: "Похороны в Орнане", image: "work116.jpg", year: "1850" },
+                        { title: "Происхождение мира", image: "work117.jpg", year: "1866" }
+                    ],
+                    facts: ["Был активным участником Парижской коммуны", "Провозгласил себя 'реалистом'", "Его картина 'Происхождение мира' долгое время считалась скандальной"]
+                },
+                {
+                    name: "Жан-Огюст-Доминик Энгр",
+                    style: "Неоклассицизм",
+                    image: "artist40.jpg",
+                    bio: "Французский художник, живописец и график, общепризнанный лидер европейского академизма XIX века.",
+                    works: [
+                        { title: "Большая одалиска", image: "work118.jpg", year: "1814" },
+                        { title: "Купальщица Вальпинсона", image: "work119.jpg", year: "1808" },
+                        { title: "Портрет мадемуазель Ривьер", image: "work120.jpg", year: "1806" }
+                    ],
+                    facts: ["Был ярым противником романтизма", "Считался лучшим портретистом своего времени", "Его творчество оказало влияние на многих художников, включая Дега и Пикассо"]
+                },
+                {
+                    name: "Фра Анджелико",
+                    style: "Раннее Возрождение",
+                    image: "artist41.jpg",
+                    bio: "Итальянский художник эпохи Раннего Возрождения, доминиканский монах. Прославился своими фресками и алтарными образами.",
+                    works: [
+                        { title: "Благовещение", image: "work121.jpg", year: "1442" },
+                        { title: "Коронование Девы Марии", image: "work122.jpg", year: "1435" },
+                        { title: "Преображение", image: "work123.jpg", year: "1442" }
+                    ],
+                    facts: ["Был причислен к лику блаженных Католической церковью", "Расписал фресками монастырь Сан-Марко во Флоренции", "Его творчество сочетало готические традиции с новыми ренессансными веяниями"]
+                },
+                {
+                    name: "Томас Гейнсборо",
+                    style: "Рококо",
+                    image: "artist42.jpg",
+                    bio: "Английский живописец, график, портретист и пейзажист. Вместе с Джошуа Рейнолдсом считается основателем британской художественной школы XVIII века.",
+                    works: [
+                        { title: "Утренняя прогулка", image: "work124.jpg", year: "1785" },
+                        { title: "Голубой мальчик", image: "work125.jpg", year: "1770" },
+                        { title: "Портрет миссис Грэм", image: "work126.jpg", year: "1777" }
+                    ],
+                    facts: ["Был одним из основателей Королевской академии художеств", "Предпочитал пейзажи портретам, но прославился именно как портретист", "Его творчество повлияло на Констебла и других английских пейзажистов"]
+                },
+                {
+                    name: "Джон Констебл",
+                    style: "Романтизм",
+                    image: "artist43.jpg",
+                    bio: "Английский художник-романтик. Известен своими пейзажами, посвящёнными природе родного Саффолка.",
+                    works: [
+                        { title: "Телега для сена", image: "work127.jpg", year: "1821" },
+                        { title: "Собор в Солсбери", image: "work128.jpg", year: "1823" },
+                        { title: "Мельница в Флэтфорде", image: "work129.jpg", year: "1817" }
+                    ],
+                    facts: ["Был одним из первых художников, писавших пленэре", "Его творчество повлияло на французских импрессионистов", "Часто изображал облака и небо, делая подробные метеорологические заметки"]
+                },
+                {
+                    name: "Камиль Писсарро",
+                    style: "Импрессионизм",
+                    image: "artist44.jpg",
+                    bio: "Французский живописец, один из первых и наиболее последовательных представителей импрессионизма.",
+                    works: [
+                        { title: "Бульвар Монмартр ночью", image: "work130.jpg", year: "1897" },
+                        { title: "Красные крыши", image: "work131.jpg", year: "1877" },
+                        { title: "Сбор яблок", image: "work132.jpg", year: "1888" }
+                    ],
+                    facts: ["Был единственным участником всех восьми выставок импрессионистов", "Оказал влияние на многих молодых художников, включая Сезанна и Гогена", "В поздний период творчества экспериментировал с пуантилизмом"]
+                },
+                {
+                    name: "Анри Руссо",
+                    style: "Наивное искусство",
+                    image: "artist45.jpg",
+                    bio: "Французский художник-самоучка, один из самых известных представителей наивного искусства или примитивизма.",
+                    works: [
+                        { title: "Спящая цыганка", image: "work133.jpg", year: "1897" },
+                        { title: "Голодный лев", image: "work134.jpg", year: "1905" },
+                        { title: "Сновидение", image: "work135.jpg", year: "1910" }
+                    ],
+                    facts: ["Был таможенником, поэтому получил прозвище 'Таможенник Руссо'", "Начал заниматься живописью в зрелом возрасте", "Его творчество высоко ценили Пикассо и другие авангардисты"]
+                },
+                {
+                    name: "Франц Марк",
+                    style: "Экспрессионизм",
+                    image: "artist46.jpg",
+                    bio: "Немецкий живописец, яркий представитель немецкого экспрессионизма. Сооснователь группы «Синий всадник».",
+                    works: [
+                        { title: "Синяя лошадь", image: "work136.jpg", year: "1911" },
+                        { title: "Судьба животных", image: "work137.jpg", year: "1913" },
+                        { title: "Тигр", image: "work138.jpg", year: "1912" }
+                    ],
+                    facts: ["Погиб в Первой мировой войне", "Считал, что животные более чисты и духовны, чем люди", "Был сооснователем группы 'Синий всадник' вместе с Кандинским"]
+                },
+                {
+                    name: "Эгон Шиле",
+                    style: "Экспрессионизм",
+                    image: "artist47.jpg",
+                    bio: "Австрийский живописец и график, один из ярчайших представителей австрийского экспрессионизма. Ученик Густава Климта.",
+                    works: [
+                        { title: "Автопортрет с китайским фонариком", image: "work139.jpg", year: "1912" },
+                        { title: "Объятие", image: "work140.jpg", year: "1917" },
+                        { title: "Смерть и дева", image: "work141.jpg", year: "1915" }
+                    ],
+                    facts: ["Умер в возрасте 28 лет от испанского гриппа", "Был арестован за распространение непристойных рисунков", "Его работы характеризуются острым психологизмом и эмоциональной напряженностью"]
+                },
+                {
+                    name: "Джеймс Энсор",
+                    style: "Экспрессионизм",
+                    image: "artist48.jpg",
+                    bio: "Бельгийский художник и график, один из предшественников экспрессионизма и сюрреализма. Мастер гротеска и сатиры.",
+                    works: [
+                        { title: "Въезд Христа в Брюссель", image: "work142.jpg", year: "1888" },
+                        { title: "Автопортрет с масками", image: "work143.jpg", year: "1899" },
+                        { title: "Скелеты, оспаривающие повешенного", image: "work144.jpg", year: "1891" }
+                    ],
+                    facts: ["Часто изображал маски и скелеты", "Его творчество повлияло на развитие экспрессионизма и сюрреализма", "Был удостоен титула барона королем Бельгии"]
+                },
+                {
+                    name: "Амадео Модильяни",
+                    style: "Модернизм",
+                    image: "artist49.jpg",
+                    bio: "Итальянский художник и скульптор, один из самых известных представителей экспрессионизма. Работал в основном во Франции.",
+                    works: [
+                        { title: "Портрет Жанны Эбютерн", image: "work145.jpg", year: "1919" },
+                        { title: "Обнаженная на диване", image: "work146.jpg", year: "1917" },
+                        { title: "Портрет Хаима Сутина", image: "work147.jpg", year: "1917" }
+                    ],
+                    facts: ["Был известен своей богемной жизнью в Париже", "Умер в возрасте 35 лет от туберкулеза", "Его возлюбленная Жанна Эбютерн покончила с собой на следующий день после его смерти"]
+                },
+                {
+                    name: "Марк Ротко",
+                    style: "Абстрактный экспрессионизм",
+                    image: "artist50.jpg",
+                    bio: "Американский художник, ведущий представитель абстрактного экспрессионизма, один из создателей живописи цветового поля.",
+                    works: [
+                        { title: "Оранжевое, красное, желтое", image: "work148.jpg", year: "1956" },
+                        { title: "Без названия (Черное на сером)", image: "work149.jpg", year: "1970" },
+                        { title: "№ 61 (Ржавый и голубой)", image: "work150.jpg", year: "1953" }
+                    ],
+                    facts: ["Покончил с собой в 1970 году", "Создал капеллу Ротко в Хьюстоне", "Отказался от продажи своих картин в престижный ресторан 'Четыре сезона'"]
+                },
+                {
+                    name: "Вильям де Кунинг",
+                    style: "Абстрактный экспрессионизм",
+                    image: "artist51.jpg",
+                    bio: "Американский художник голландского происхождения, ведущий представитель абстрактного экспрессионизма. Известен своими агрессивными по манере исполнения абстрактными работами.",
+                    works: [
+                        { title: "Женщина I", image: "work151.jpg", year: "1952" },
+                        { title: "Раскопки", image: "work152.jpg", year: "1950" },
+                        { title: "Без названия XII", image: "work153.jpg", year: "1975" }
+                    ],
+                    facts: ["Был одним из лидеров нью-йоркской школы абстрактного экспрессионизма", "Его серия 'Женщины' вызвала большой резонанс", "В поздний период творчества страдал болезнью Альцгеймера"]
+                },
+                {
+                    name: "Фернан Леже",
+                    style: "Кубизм",
+                    image: "artist52.jpg",
+                    bio: "Французский живописец и скульптор, мастер декоративного искусства, один из ведущих представителей кубизма.",
+                    works: [
+                        { title: "Город", image: "work154.jpg", year: "1919" },
+                        { title: "Три женщины", image: "work155.jpg", year: "1921" },
+                        { title: "Строители", image: "work156.jpg", year: "1950" }
+                    ],
+                    facts: ["Был участником Первой мировой войны", "Разработал собственный вариант кубизма - 'тубизм'", "В поздний период творчества обращался к теме труда и рабочих"]
+                },
+                {
+                    name: "Джорджо де Кирико",
+                    style: "Метафизическая живопись",
+                    image: "artist53.jpg",
+                    bio: "Итальянский художник и теоретик искусства, основатель метафизической живописи, предшественник сюрреализма.",
+                    works: [
+                        { title: "Ностальгия по бесконечности", image: "work157.jpg", year: "1913" },
+                        { title: "Загадка дня", image: "work158.jpg", year: "1914" },
+                        { title: "Меланхолия улицы", image: "work159.jpg", year: "1914" }
+                    ],
+                    facts: ["Основал движение 'метафизическая живопись'", "Его творчество повлияло на сюрреалистов", "В поздний период творчества обратился к неоклассицизму"]
+                },
+                {
+                    name: "Ив Кляйн",
+                    style: "Новый реализм",
+                    image: "artist54.jpg",
+                    bio: "Французский художник, considerado одним из самых важных представителей послевоенного европейского искусства. Разработал концепцию монохромной живописи.",
+                    works: [
+                        { title: "Синий монохром", image: "work160.jpg", year: "1962" },
+                        { title: "Антропометрия", image: "work161.jpg", year: "1960" },
+                        { title: "Прыжок в пустоту", image: "work162.jpg", year: "1960" }
+                    ],
+                    facts: ["Разработал и запатентовал цвет 'International Klein Blue'", "Создавал работы с использованием живых моделей как 'кистей'", "Умер в возрасте 34 лет от сердечного приступа"]
+                },
+                {
+                    name: "Фрэнсис Бэкон",
+                    style: "Экспрессионизм",
+                    image: "artist55.jpg",
+                    bio: "Британский художник-экспрессионист ирландского происхождения. Мастер фигуративной живописи, известный своими смелыми, эмоционально насыщенными образами.",
+                    works: [
+                        { title: "Три наброска к портрету Люсьена Фрейда", image: "work163.jpg", year: "1966" },
+                        { title: "Кричащий папа", image: "work164.jpg", year: "1953" },
+                        { title: "Триптих", image: "work165.jpg", year: "1976" }
+                    ],
+                    facts: ["Его работы характеризуются искаженными, тревожными образами", "Был известен своей хаотичной студией и беспорядочным образом жизни", "Его картина 'Три наброска к портрету Люсьена Фрейда' была продана за 142 миллиона долларов"]
+                },
+                {
+                    name: "Люсьен Фрейд",
+                    style: "Реализм",
+                    image: "artist56.jpg",
+                    bio: "Британский художник немецкого происхождения, мастер портретной и фигуративной живописи. Внук Зигмунда Фрейда.",
+                    works: [
+                        { title: "Социальная смотрительница спит", image: "work166.jpg", year: "1995" },
+                        { title: "Девушка с белой собакой", image: "work167.jpg", year: "1952" },
+                        { title: "Автопортрет: отражение", image: "work168.jpg", year: "2002" }
+                    ],
+                    facts: ["Был внуком основателя психоанализа Зигмунда Фрейда", "Известен своими откровенными и психологически глубокими портретами", "Его картина 'Социальная смотрительница спит' была продана за 33,6 миллиона долларов"]
+                },
+                {
+                    name: "Энди Уорхол",
+                    style: "Поп-арт",
+                    image: "artist57.jpg",
+                    bio: "Американский художник, продюсер, дизайнер, писатель, коллекционер, издатель журналов и кинорежиссёр, культовая персона в истории поп-арт-движения и современного искусства в целом.",
+                    works: [
+                        { title: "Банки супа Кэмпбелл", image: "work169.jpg", year: "1962" },
+                        { title: "Диптих Мэрилин", image: "work170.jpg", year: "1962" },
+                        { title: "Восемь Элвисов", image: "work171.jpg", year: "1963" }
+                    ],
+                    facts: ["Основал знаменитую студию 'Фабрика'", "Был shot and nearly killed в 1968 году", "Его цитата 'В будущем каждый будет знаменитым на 15 минут' стала культовой"]
+                },
+                {
+                    name: "Рой Лихтенштейн",
+                    style: "Поп-арт",
+                    image: "artist58.jpg",
+                    bio: "Американский художник, представитель поп-арта. Его работы вдохновлены комиксами и рекламой, характерны использованием точек Бен-Дей.",
+                    works: [
+                        { title: "Whaam!", image: "work172.jpg", year: "1963" },
+                        { title: "Девушка с шаром", image: "work173.jpg", year: "1961" },
+                        { title: "Плачущая девушка", image: "work174.jpg", year: "1964" }
+                    ],
+                    facts: ["Был одним из ведущих представителей поп-арта", "Использовал технику точек Бен-Дей для создания эффекта комиксов", "Его работы часто подвергались критике за 'безыскусность'"]
+                },
+                {
+                    name: "Джаспер Джонс",
+                    style: "Поп-арт",
+                    image: "artist59.jpg",
+                    bio: "Американский художник, скульптор и гравёр, ведущий представитель поп-арта. Известен своими работами с изображением флагов, цифр и мишеней.",
+                    works: [
+                        { title: "Флаг", image: "work175.jpg", year: "1955" },
+                        { title: "Три флага", image: "work176.jpg", year: "1958" },
+                        { title: "Мишень с четырьмя лицами", image: "work177.jpg", year: "1955" }
+                    ],
+                    facts: ["Его работа 'Флаг' считается одной из самых важных в американском искусстве XX века", "Был близким другом и collaborator Роберта Раушенберга", "Использовал энкаустику (восковую живопись) в своих работах"]
+                },
+                {
+                    name: "Роберт Раушенберг",
+                    style: "Поп-арт",
+                    image: "artist60.jpg",
+                    bio: "Американский художник, график, скульптор, хореограф и перформансист, представитель абстрактного экспрессионизма и поп-арта, создатель так называемых 'комбайнов'.",
+                    works: [
+                        { title: "Монограмма", image: "work178.jpg", year: "1959" },
+                        { title: "Одалиск", image: "work179.jpg", year: "1958" },
+                        { title: "Кровать", image: "work180.jpg", year: "1955" }
+                    ],
+                    facts: ["Создал направление 'комбайн-живопись'", "Был пионером перформанса и хэппенинга", "Получил главный приз на Венецианской биеннале в 1964 году"]
+                },
+                {
+                    name: "Дэвид Хокни",
+                    style: "Поп-арт",
+                    image: "artist61.jpg",
+                    bio: "Британский художник, график, фотограф и сценограф. Один из самых влиятельных британских художников XX века, представитель поп-арта.",
+                    works: [
+                        { title: "Больший всплеск", image: "work181.jpg", year: "1967" },
+                        { title: "Мистер и миссис Кларк и Перси", image: "work182.jpg", year: "1971" },
+                        { title: "Портрет художника (Бассейн с двумя фигурами)", image: "work183.jpg", year: "1972" }
+                    ],
+                    facts: ["Его картина 'Портрет художника' была продана за 90 миллионов долларов", "Активно использует iPad для создания цифровых рисунков", "Живет в Калифорнии, где создал многие свои знаменитые работы с бассейнами"]
+                }
+            ];
+            // Переменные состояния
+            let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+            let compareList = [];
+            let isCompareMode = false;
+
+            window.addEventListener('scroll', function() {
+                const logoSection = document.querySelector('.logo-section');
+                const scrollPosition = window.scrollY;
+                const sectionHeight = logoSection.offsetHeight;
+                const opacity = 1 - (scrollPosition / sectionHeight);
+                logoSection.style.opacity = opacity > 0 ? opacity : 0;
+            });
+
+
+            // Функции инициализации
+            function init() {
+                createCards();
+                setupEventListeners();
+                updateProgressBar();
+            }
+            function setupEventListeners() {
+                window.addEventListener('scroll', handleScroll);
+                homeButton.addEventListener('click', scrollToTop);
+                galleryButton.addEventListener('click', scrollToGallery);
+                favoritesButton.addEventListener('click', showFavorites);
+                compareButton.addEventListener('click', toggleCompareMode);
+                searchButton.addEventListener('click', handleSearch);
+                searchInput.addEventListener('input', handleAutocomplete);
+                themeToggle.addEventListener('click', toggleTheme);
+                closeArtistModal.addEventListener('click', () => {
+                artistModal.style.display = 'none';
+    
+                // Показываем иконку темы снова при закрытии модального окна
+                if (window.innerWidth <= 768) {
+                themeToggle.style.display = 'flex';
+                    }
+                });
+                // Закрытие модальных окон при клике вне их
+                window.addEventListener('click', (e) => {
+                if (e.target === artistModal) {
+                artistModal.style.display = 'none';
+        
+                // Показываем иконку темы снова при закрытии модального окна
+                if (window.innerWidth <= 768) {
+                themeToggle.style.display = 'flex';
+                        }
+                    }
+                });
+                // Эффект при клике
+                document.body.addEventListener('click', createClickEffect);
+                document.addEventListener('mousedown', preventDoubleClick);
+            }
+            // Функции для работы с интерфейсом
+            function handleScroll() {
+                updateProgressBar();
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                if (scrollTop > logoSection.offsetHeight) {
+                    fixedNavbar.classList.add('visible');
+                } else {
+                    fixedNavbar.classList.remove('visible');
+                }
+            }
+            function updateProgressBar() {
+                const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+                const scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight;
+                const clientHeight = document.documentElement.clientHeight || window.innerHeight;
+                const scrollPercentage = (scrollTop / (scrollHeight - clientHeight)) * 100;
+                progressBar.style.width = scrollPercentage + '%';
+            }
+            function scrollToTop() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+            function scrollToGallery() {
+                document.querySelector('.container').scrollIntoView({ behavior: 'smooth' });
+            }
+            function toggleTheme() {
+                document.body.classList.toggle('light-theme');
+                const icon = themeToggle.querySelector('i');
+                if (document.body.classList.contains('light-theme')) {
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                } else {
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                }
+            }
+            function createClickEffect(e) {
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                const x = e.clientX;
+                const y = e.clientY;
+                const effect = document.createElement('div');
+                effect.className = 'click-effect';
+                effect.style.backgroundColor = randomColor;
+                effect.style.left = `${x}px`;
+                effect.style.top = `${y}px`;
+                document.body.appendChild(effect);
+                requestAnimationFrame(() => {
+                    effect.classList.add('animate');
+                });
+                setTimeout(() => {
+                    effect.remove();
+                }, 500);
+            }
+            function preventDoubleClick(e) {
+                if (e.detail > 1) {
+                    e.preventDefault();
+                }
+            }
+            // Функции для работы с карточками
+            function getRandomDate() {
+                const start = new Date(2020, 0, 1);
+                const end = new Date();
+                const date = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+                return date.toLocaleDateString('ru-RU');
+            }
+            function createCards() {
+                container.innerHTML = '';
+
+                artistsData.forEach(artist => {
+                    const isFavorite = favorites.includes(artist.name);
+
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.dataset.style = artist.style;
+                    card.dataset.name = artist.name.toLowerCase();
+
+                    card.innerHTML = `
+                        <input type="checkbox" class="compare-checkbox" data-name="${artist.name}" style="display: ${isCompareMode ? 'block' : 'none'}">
+                        <button class="favorite-btn ${isFavorite ? 'active' : ''}" data-name="${artist.name}">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                        <div class="card-image">
+                            <img src="${artist.image}" alt="${artist.name}" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x180?text=${encodeURIComponent(artist.name)}';">
+                        </div>
+                        <div class="card-content">
+                            <h3 class="card-title">${artist.name}</h3>
+                            <p class="card-description">${artist.bio ? artist.bio.substring(0, 150) + '...' : 'Выдающийся художник, оставивший значительный след в истории искусства. Его работы продолжают вдохновлять новые поколения творцов.'}</p>
+                            <div class="card-footer">
+                                <span class="card-tag">${artist.style}</span>
+                                <span class="card-date">${getRandomDate()}</span>
+                            </div>
+                        </div>
+                    `;
+
+                    container.appendChild(card);
+                });
+
+                // Добавляем обработчики событий для новых карточек
+                document.querySelectorAll('.favorite-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        toggleFavorite(btn.dataset.name);
+                        btn.classList.toggle('active');
+                    });
+                });
+
+                document.querySelectorAll('.card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        if (!isCompareMode) {
+                            const artistName = card.querySelector('.card-title').textContent;
+                            showArtistDetails(artistName);
+                        }
+                    });
+                });
+            }
+            // Функции для работы с избранным
+            function toggleFavorite(artistName) {
+                if (favorites.includes(artistName)) {
+                    favorites = favorites.filter(name => name !== artistName);
+                } else {
+                    favorites.push(artistName);
+                }
+                localStorage.setItem('favorites', JSON.stringify(favorites));
+            }
+            function showFavorites() {
+                const filterButtons = document.querySelectorAll('.filter-btn');
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                filterButtons[0].classList.add('active');
+
+                const cards = document.querySelectorAll('.card');
+                cards.forEach(card => {
+                    const name = card.querySelector('.card-title').textContent;
+                    if (favorites.includes(name)) {
+                        card.style.display = 'flex';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                // Обновляем состояние кнопок избранного
+                document.querySelectorAll('.favorite-btn').forEach(btn => {
+                    if (favorites.includes(btn.dataset.name)) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+            }
+            // Функции для работы с сравнением
+            function toggleCompareMode() {
+                isCompareMode = !isCompareMode;
+                const checkboxes = document.querySelectorAll('.compare-checkbox');
+                checkboxes.forEach(checkbox => {
+                    checkbox.style.display = isCompareMode ? 'block' : 'none';
+                    checkbox.checked = false;
+                });
+
+                compareList = [];
+                compareButton.textContent = isCompareMode ? 'Завершить выбор' : 'Сравнить';
+
+                if (!isCompareMode && compareList.length === 2) {
+                    // Показать сравнение
+                    alert(`Сравнение художников: ${compareList[0]} и ${compareList[1]}`);
+                }
+            }
+            // Функции для работы с поиском и автодополнением
+            function handleSearch() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const cards = document.querySelectorAll('.card');
+                cards.forEach(card => {
+                    const name = card.dataset.name;
+                    const style = card.dataset.style.toLowerCase();
+                    if (name.includes(searchTerm) || style.includes(searchTerm)) {
+                        card.style.display = 'flex';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            }
+            function handleAutocomplete() {
+                const value = searchInput.value.toLowerCase();
+                autocompleteList.innerHTML = '';
+                autocompleteList.style.display = 'none';
+
+                if (value.length < 2) return;
+
+                const matches = [];
+
+                artistsData.forEach(artist => {
+                    if (artist.name.toLowerCase().includes(value)) {
+                        matches.push(artist.name);
+                    }
+                    if (artist.style.toLowerCase().includes(value)) {
+                        matches.push(artist.style);
+                    }
+                });
+
+                const uniqueMatches = [...new Set(matches)];
+
+                if (uniqueMatches.length > 0) {
+                    autocompleteList.style.display = 'block';
+                    uniqueMatches.slice(0, 5).forEach(match => {
+                        const item = document.createElement('div');
+                        item.className = 'autocomplete-item';
+                        item.textContent = match;
+                        item.addEventListener('click', () => {
+                            searchInput.value = match;
+                            autocompleteList.style.display = 'none';
+                            handleSearch();
+                        });
+                        autocompleteList.appendChild(item);
+                    });
+                }
+            }
+            // Функции для работы с деталями художника
+            function showArtistDetails(artistName) {
+                const artist = artistsData.find(a => a.name === artistName);
+                if (!artist) return;
+
+            // Скрываем иконку темы на мобильных устройствах
+                if (window.innerWidth <= 768) {
+            themeToggle.style.display = 'none';
+    }
+
+                artistDetails.innerHTML = `
+                    <div class="artist-header">
+                        <div class="artist-image">
+                            <img src="${artist.image}" alt="${artist.name}">
+                        </div>
+                        <div class="artist-info">
+                            <h2 class="artist-name">${artist.name}</h2>
+                            <p class="artist-style">${artist.style}</p>
+                            <p class="artist-bio">${artist.bio || 'Информация о художнике скоро будет добавлена.'}</p>
+                            ${artist.facts ? `
+                                <div class="artist-facts">
+                                    <h3>Интересные факты:</h3>
+                                    <ul>
+                                        ${artist.facts.map(fact => `<li>${fact}</li>`).join('')}
+                                    </ul>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                    ${artist.works ? `
+                        <div class="artist-works">
+                            <h3>Известные работы:</h3>
+                            <div class="works-grid">
+                                ${artist.works.map(work => `
+                                    <div class="work-item">
+                                        <img src="${work.image}" alt="${work.title}">
+                                        <div class="work-title">${work.title} (${work.year})</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                `;
+
+                artistModal.style.display = 'block';
+                    // Обновляем обработчики кликов для картин
+                    updateWorkItemHandlers();
+                    // Обновление обработчиков для картин в модальном окне художника
+            function updateWorkItemHandlers() {
+            // Находим все миниатюры картин в биографии художника
+            const workImages = document.querySelectorAll('.work-item img');
+
+            // Добавляем обработчик клика на каждую миниатюру
+            workImages.forEach(img => {
+            img.onclick = function() {
+            const pictureUrl = this.src; // URL кликнутой картины
+            const artistName = document.querySelector('.artist-name').textContent; // Имя текущего художника
+            const artist = artistsData.find(a => a.name === artistName); // Находим данные о художнике
+
+            // Открываем модальное окно с увеличенной картиной
+            openPictureModal(pictureUrl, artist.works);
+        };
+    });
+}
+            }
+            // Фильтрация карточек
+            document.querySelectorAll('.filter-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    const filterValue = button.dataset.filter;
+                    const cards = document.querySelectorAll('.card');
+                    cards.forEach(card => {
+                        if (filterValue === 'all') {
+                            card.style.display = 'flex';
+                        } else {
+                            card.style.display = card.dataset.style === filterValue ? 'flex' : 'none';
+                        }
+                    });
+                });
+            });
+            // Добавьте эти переменные в начало с другими переменными состояния
+            let quizQuestions = [];
+            let currentQuestionIndex = 0;
+            let score = 0;
+            let usedQuestionIds = new Set();
+            // Добавьте этот код в функцию setupEventListeners()
+            const quizButton = document.getElementById('quiz-button');
+            const quizModal = document.getElementById('quizModal');
+            const closeQuizModal = document.getElementById('closeQuizModal');
+            const quizContainer = document.getElementById('quizContainer');
+            quizButton.addEventListener('click', startQuiz);
+            closeQuizModal.addEventListener('click', () => {
+            quizModal.style.display = 'none';
+    
+            // Показываем иконку темы снова при закрытии модального окна
+            if (window.innerWidth <= 768) {
+            themeToggle.style.display = 'flex';
+                }
+            });
+            window.addEventListener('click', (e) => {
+            if (e.target === quizModal) {
+            quizModal.style.display = 'none';
+        
+            // Показываем иконку темы снова при закрытии модального окна
+            if (window.innerWidth <= 768) {
+            themeToggle.style.display = 'flex';
+                }
+                }
+            });
+            // Добавьте вопросы викторины (дополните этот массив)
+            const allQuizQuestions = [
+                {
+                    id: 1,
+                    question: "Кто написал картину 'Звёздная ночь'?",
+                    options: ["Пабло Пикассо", "Винсент ван Гог", "Клод Моне", "Сальвадор Дали"],
+                    answer: 1,
+                    type: "художники"
+                },
+                {
+                    id: 2,
+                    question: "В каком стиле писал Сальвадор Дали?",
+                    options: ["Импрессионизм", "Сюрреализм", "Кубизм", "Экспрессионизм"],
+                    answer: 1,
+                    type: "стили"
+                },
+                {
+                    id: 3,
+                    question: "Какая картина Леонардо да Винчи самая известная?",
+                    options: ["Тайная вечеря", "Мона Лиза", "Витрувианский человек", "Дама с горностаем"],
+                    answer: 1,
+                    type: "произведения"
+                },
+                {
+                    id: 4,
+                    question: "Кто является автором 'Крика'?",
+                    options: ["Эдвард Мунк", "Винсент ван Гог", "Пабло Пикассо", "Анри Матисс"],
+                    answer: 0,
+                    type: "художники"
+                },
+                {
+                    id: 5,
+                    question: "В каком веке жил Микеланджело?",
+                    options: ["XIV век", "XV век", "XVI век", "XVII век"],
+                    answer: 2,
+                    type: "история"
+                },
+                {
+                    id: 6,
+                    question: "Что означает термин 'импасто' в живописи?",
+                    options: ["Техника рисования водой", "Густое наложение краски", "Рисование пальцами", "Использование только основных цветов"],
+                    answer: 1,
+                    type: "техники"
+                },
+                {
+                    id: 7,
+                    question: "Кто основал кубизм?",
+                    options: ["Пабло Пикассо и Жорж Брак", "Винсент ван Гог и Поль Гоген", "Сальвадор Дали и Рене Магритт", "Анри Матисс и Андре Дерен"],
+                    answer: 0,
+                    type: "стили"
+                },
+                {
+                    id: 8,
+                    question: "Какая из этих картин принадлежит кисти Рембрандта?",
+                    options: ["Ночной дозор", "Подсолнухи", "Танец", "Постоянство памяти"],
+                    answer: 0,
+                    type: "произведения"
+                },
+                {
+                    id: 9,
+                    question: "Что такое 'сфумато'?",
+                    options: ["Техника резких контрастов", "Техника мягких переходов и дымки", "Техника точечного рисования", "Техника использования только черного и белого"],
+                    answer: 1,
+                    type: "техники"
+                },
+                {
+                    id: 10,
+                    question: "Кто из этих художников был представителем импрессионизма?",
+                    options: ["Клод Моне", "Микеланджело", "Рафаэль", "Караваджо"],
+                    answer: 0,
+                    type: "стили"
+                },
+                {
+                    id: 11,
+                    question: "Какая страна является родиной фовизма?",
+                    options: ["Италия", "Франция", "Испания", "Германия"],
+                    answer: 1,
+                    type: "история"
+                },
+                {
+                    id: 12,
+                    question: "Кто написал 'Авиньонских девиц'?",
+                    options: ["Пабло Пикассо", "Анри Матисс", "Сальвадор Дали", "Винсент ван Гог"],
+                    answer: 0,
+                    type: "произведения"
+                },
+                {
+                    id: 13,
+                    question: "Что такое 'пленэр' в живописи?",
+                    options: ["Рисование в студии", "Рисование на открытом воздухе", "Рисование по памяти", "Рисование с натуры в помещении"],
+                    answer: 1,
+                    type: "техники"
+                },
+                {
+                    id: 14,
+                    question: "Кто из этих художников был русским авангардистом?",
+                    options: ["Казимир Малевич", "Илья Репин", "Иван Шишкин", "Исаак Левитан"],
+                    answer: 0,
+                    type: "художники"
+                },
+                {
+                    id: 15,
+                    question: "Какая картина считается первой в истории абстрактной живописи?",
+                    options: ["Черный квадрат Малевича", "Композиция VII Кандинского", "Номер 5 Поллока", "Герника Пикассо"],
+                    answer: 1,
+                    type: "история"
+                },
+                {
+                    id: 16,
+                    question: "Кто создал 'Черный квадрат'?",
+                    options: ["Василий Кандинский", "Казимир Малевич", "Павел Филонов", "Марк Шагал"],
+                    answer: 1,
+                    type: "произведения"
+                },
+                {
+                    id: 17,
+                    question: "Что означает слово 'ренессанс'?",
+                    options: ["Просвещение", "Возрождение", "Революция", "Реформация"],
+                    answer: 1,
+                    type: "история"
+                },
+                {
+                    id: 18,
+                    question: "Кто из этих художников был известен своими автопортретами?",
+                    options: ["Рембрандт", "Клод Моне", "Сальвадор Дали", "Все перечисленные"],
+                    answer: 3,
+                    type: "художники"
+                },
+                {
+                    id: 19,
+                    question: "Какая техника живописи использует воск в качестве связующего вещества?",
+                    options: ["Акварель", "Темпера", "Энкаустика", "Фреска"],
+                    answer: 2,
+                    type: "техники"
+                },
+                {
+                    id: 20,
+                    question: "Кто считается отцом современного искусства?",
+                    options: ["Пабло Пикассо", "Винсент ван Гог", "Поль Сезанн", "Клод Моне"],
+                    answer: 2,
+                    type: "история"
+                }
+            ];
+            // Функции для викторины
+            function startQuiz() {
+                usedQuestionIds.clear();
+                score = 0;
+                currentQuestionIndex = 0;
+                quizQuestions = generateRandomQuestions(15);
+                showQuestion();
+                quizModal.style.display = 'block';
+            // Скрываем иконку темы на мобильных устройствах
+            if (window.innerWidth <= 768) {
+            themeToggle.style.display = 'none';
+            }
+
+
+            }
+            function generateRandomQuestions(count) {
+                const availableQuestions = allQuizQuestions.filter(q => !usedQuestionIds.has(q.id));
+                const selectedQuestions = [];
+
+                // Если доступных вопросов меньше, чем нужно, сбросим использованные
+                if (availableQuestions.length < count) {
+                    usedQuestionIds.clear();
+                }
+
+                // Выбираем случайные вопросы
+                while (selectedQuestions.length < count && allQuizQuestions.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * allQuizQuestions.length);
+                    const question = allQuizQuestions[randomIndex];
+
+                    if (!usedQuestionIds.has(question.id)) {
+                        selectedQuestions.push(question);
+                        usedQuestionIds.add(question.id);
+                    }
+
+                    // Защита от бесконечного цикла
+                    if (usedQuestionIds.size >= allQuizQuestions.length) {
+                        break;
+                    }
+                }
+
+                return selectedQuestions;
+            }
+            function showQuestion() {
+                if (currentQuestionIndex >= quizQuestions.length) {
+                    showResults();
+                    return;
+                }
+
+                const question = quizQuestions[currentQuestionIndex];
+                const options = question.options.map((option, index) => `
+                    <button class="quiz-option" data-index="${index}">${option}</button>
+                `).join('');
+
+                quizContainer.innerHTML = `
+                    <div class="quiz-progress">
+                        <div class="quiz-score">Вопрос ${currentQuestionIndex + 1}/${quizQuestions.length}</div>
+                        <div class="quiz-score">Счет: ${score}</div>
+                    </div>
+                    <div class="quiz-question">${question.question}</div>
+                    <div class="quiz-options">${options}</div>
+                    <button class="quiz-next" style="display: none;">Следующий вопрос</button>
+                `;
+
+                // Добавляем обработчики событий
+                document.querySelectorAll('.quiz-option').forEach(option => {
+                    option.addEventListener('click', handleAnswer);
+                });
+
+                document.querySelector('.quiz-next').addEventListener('click', nextQuestion);
+            }
+            function handleAnswer(e) {
+                const selectedOption = e.target;
+                const selectedIndex = parseInt(selectedOption.dataset.index);
+                const question = quizQuestions[currentQuestionIndex];
+                const options = document.querySelectorAll('.quiz-option');
+                const nextButton = document.querySelector('.quiz-next');
+
+                // Отключаем все кнопки
+                options.forEach(option => {
+                    option.style.pointerEvents = 'none';
+                });
+
+                // Показываем правильный ответ
+                options[question.answer].classList.add('correct');
+
+                // Если ответ неверный, показываем ошибку
+                if (selectedIndex !== question.answer) {
+                    selectedOption.classList.add('incorrect');
+                } else {
+                    score++;
+                    document.querySelector('.quiz-score:last-child').textContent = `Счет: ${score}`;
+                }
+
+                // Показываем кнопку "Следующий вопрос"
+                nextButton.style.display = 'block';
+            }
+            function nextQuestion() {
+                currentQuestionIndex++;
+                showQuestion();
+            }
+
+// Модальное окно для картин
+const pictureModal = document.getElementById('pictureModal');
+const fullscreenPicture = document.getElementById('fullscreenPicture');
+const closePictureModal = document.getElementById('closePictureModal');
+const prevPicture = document.getElementById('prevPicture');
+const nextPicture = document.getElementById('nextPicture');
+let currentPictureIndex = 0;
+let currentArtistWorks = [];
+
+// Открытие модального окна с картиной
+function openPictureModal(pictureUrl, works) {
+    currentArtistWorks = works;
+    currentPictureIndex = works.findIndex(work => work.image === pictureUrl);
+    fullscreenPicture.src = pictureUrl;
+    pictureModal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+// Закрытие модального окна с картиной
+function closePicture() {
+    pictureModal.style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+// Переключение на предыдущую картину
+function showPrevPicture() {
+    if (currentPictureIndex > 0) {
+        currentPictureIndex--;
+        fullscreenPicture.src = currentArtistWorks[currentPictureIndex].image;
+    }
+}
+
+// Переключение на следующую картину
+function showNextPicture() {
+    if (currentPictureIndex < currentArtistWorks.length - 1) {
+        currentPictureIndex++;
+        fullscreenPicture.src = currentArtistWorks[currentPictureIndex].image;
+    }
+}
+
+// Обработчики событий
+closePictureModal.addEventListener('click', closePicture);
+prevPicture.addEventListener('click', showPrevPicture);
+nextPicture.addEventListener('click', showNextPicture);
+
+// Закрытие модального окна по нажатию Esc
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape' && pictureModal.style.display === 'block') {
+        closePicture();
+    }
+});
+
+// Обновление обработчиков длФя картин в модальном окне художника
+function updateWorkItemHandlers() {
+    document.querySelectorAll('.work-item img').forEach(img => {
+        img.addEventListener('click', function() {
+            const pictureUrl = this.src;
+            const artistName = document.querySelector('.artist-name').textContent;
+            const artist = artistsData.find(a => a.name === artistName);
+            openPictureModal(pictureUrl, artist.works);
+        });
+    });
+}
+
+            function showResults() {
+                const percentage = Math.round((score / quizQuestions.length) * 100);
+                let message = '';
+
+                if (percentage >= 90) message = 'Отличный результат! Вы настоящий знаток искусства!';
+                else if (percentage >= 70) message = 'Хороший результат! Вы хорошо разбираетесь в искусстве!';
+                else if (percentage >= 50) message = 'Неплохой результат! Продолжайте изучать искусство!';
+                else message = 'Попробуйте еще раз! Искусство требует внимательного изучения.';
+
+                quizContainer.innerHTML = `
+                    <div class="quiz-results">
+                        <h2 class="quiz-final-score">Ваш результат: ${score}/${quizQuestions.length}</h2>
+                        <p class="quiz-message">${message}</p>
+                        <button class="quiz-restart">Начать заново</button>
+                    </div>
+                `;
+
+                document.querySelector('.quiz-restart').addEventListener('click', startQuiz);
+            }
+            // Инициализация приложения
+            init();
+        });
+    </script>
+</body>
+</html>
